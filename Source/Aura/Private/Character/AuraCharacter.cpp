@@ -3,8 +3,10 @@
 
 #include "Character/AuraCharacter.h"
 
+#include "AbilitySystemComponent.h"
 #include "SAdvancedTransformInputBox.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Player/AuraPlayerState.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -19,4 +21,28 @@ AAuraCharacter::AAuraCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 	
+}
+
+void AAuraCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	// 서버 전용
+	//if (HasAuthority()) 체크 안 해도 되는 게 이미 Server에서만 호출되는 함수임
+	InitAbilityActorInfo();
+}
+
+void AAuraCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	// 클라이언트 전용
+	InitAbilityActorInfo();
+}
+
+void AAuraCharacter::InitAbilityActorInfo()
+{
+	AAuraPlayerState* PlayerState = GetPlayerState<AAuraPlayerState>(); // 템플릿 버전이 있음
+	check(PlayerState);
+	AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this);
+	AttributeSet = PlayerState->GetAttributeSet();
 }
