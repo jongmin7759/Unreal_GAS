@@ -7,9 +7,9 @@ public class Aura : ModuleRules
 	public Aura(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-		// EnhancedInput 사용하기 위해서 모듈 등록
+		// EnhancedInput, GAS 모듈 등록
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" , "EnhancedInput", "GameplayAbilities" });
-		// GAS, GameplayTags, Task 모듈 등록
+		// GameplayTags, Task 모듈 등록
 		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "GameplayTasks"  });
 
 		// Uncomment if you are using Slate UI

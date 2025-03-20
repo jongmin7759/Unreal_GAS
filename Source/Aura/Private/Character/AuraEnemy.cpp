@@ -29,7 +29,7 @@ void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AbilitySystemComponent->InitAbilityActorInfo(this,this);
+	AbilitySystemComponent->InitAbilityActorInfo(this,this); // OwnerActor == AvatarActor
 }
 
 void AAuraEnemy::HighlightActor()

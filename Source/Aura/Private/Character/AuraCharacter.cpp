@@ -40,9 +40,9 @@ void AAuraCharacter::OnRep_PlayerState()
 
 void AAuraCharacter::InitAbilityActorInfo()
 {
-	AAuraPlayerState* PlayerState = GetPlayerState<AAuraPlayerState>(); // 템플릿 버전이 있음
-	check(PlayerState);
-	AbilitySystemComponent = PlayerState->GetAbilitySystemComponent();
-	AbilitySystemComponent->InitAbilityActorInfo(PlayerState, this);
-	AttributeSet = PlayerState->GetAttributeSet();
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>(); // 템플릿 버전이 있음
+	check(AuraPlayerState);
+	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState, this);
+	AttributeSet = AuraPlayerState->GetAttributeSet();
 }
