@@ -4,9 +4,9 @@
 #include "Character/AuraCharacter.h"
 
 #include "AbilitySystemComponent.h"
-#include "SAdvancedTransformInputBox.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/AuraPlayerState.h"
+#include "UI/HUD/AuraHUD.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -45,4 +45,16 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState, this);
 	AttributeSet = AuraPlayerState->GetAttributeSet();
+
+	// InitOverlay
+	// 멀티플레이어의 경우 플레이어블 캐릭터가 항상 Playercontroller를 들고있지는 않기때문에 ValidCheck을 하고 넘어가면
+	// 다른 클라이언트가 컨트롤 중인 플레이어 캐릭터에서 ASSERT가 발생할 수 있기때문에 if()로 valid 확인된 경우만 Init해주면 됨
+	if (APlayerController* PlayerController = GetController<APlayerController>())
+	{
+	// check(PlayerController) X , 마찬가지로 HUD도 1 플레이어한테만 있으니까 if() 체크만 하기
+		if (AAuraHUD* AuraHUD = PlayerController->GetHUD<AAuraHUD>())
+		{
+			AuraHUD->InitOverlay(PlayerController,AuraPlayerState,AbilitySystemComponent,AttributeSet);
+		}
+	}
 }
