@@ -12,6 +12,8 @@ UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetCont
 	{
 		OverlayWidgetController = NewObject<UOverlayWidgetController>(this,OverlayWidgetControllerClass);
 		OverlayWidgetController->SetWidgetControllerParams(WCParams);
+		// WCParams 전부 할당되어있으니까 생성 후 바로 바인딩해주기
+		OverlayWidgetController->BindCallbacksToDependencies();
 	}
 	return OverlayWidgetController;
 }
@@ -25,9 +27,13 @@ void AAuraHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(),OverlayWidgetClass);
 	OverlayWidget = Cast<UAuraUserWidget>(Widget);
+	
 	const FWidgetControllerParams WCParams(PC,PS,ASC,AS);
-	OverlayWidgetController = GetOverlayWidgetController(WCParams);
+	// 싱글톤처럼 사용하려고 멤버 따로 안 불러오고 포인터로 사용...?
+	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WCParams);
+
 	OverlayWidget->SetWidgetController(OverlayWidgetController);
+	WidgetController->BroadcastInitialValues();
 	
 	Widget->AddToViewport();
 	

@@ -43,7 +43,10 @@ class AURA_API UAuraWidgetController : public UObject
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WCParams);
-
+	virtual void BroadcastInitialValues();
+	// 컨트롤할 위젯들에 바인딩하기
+	virtual void BindCallbacksToDependencies();
+	
 	// 자식 컨트롤러들이 접근할 수 있도록 protected
 	// Model에 접근하기 위한 포인터들 (일방향 종속성 유지 View -> Controller -> Model) 
 protected:
