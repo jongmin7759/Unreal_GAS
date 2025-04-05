@@ -40,8 +40,7 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	EffectContextHandle.AddSourceObject(this);
 	
 	// FGameplayEffectSpec 만들기
-	// Level은 나중에 게임 단계 복잡해질 때 구분용으로 사용하는듯. 일단 1로 사용
-	FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass,1.f,EffectContextHandle);
+	FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass,ActorLevel,EffectContextHandle);
 
 	// ApplyGameplayEffect~~ 종류 여러가지 있음
 	// 인자로 EffectSpec 참조 포인터가 필요한데 EffectSpecHandle은 래퍼이고 그 안에는 Data(SharedPtr)가 들어있음

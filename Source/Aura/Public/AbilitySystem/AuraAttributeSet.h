@@ -7,12 +7,46 @@
 #include "AbilitySystemComponent.h"
 #include "AuraAttributeSet.generated.h"
 
-
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+USTRUCT()
+struct FEffectProperties
+{
+	GENERATED_BODY()
+
+	FEffectProperties() {}
+	
+	FGameplayEffectContextHandle EffectContextHandle;
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> SourceASC = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<AActor> SourceAvatarActor = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<AController> SourceController = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<ACharacter> SourceCharacter = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> TargetASC = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<AActor> TargetAvatarActor = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<AController> TargetController = nullptr;
+	
+	UPROPERTY()
+	TObjectPtr<ACharacter> TargetCharacter = nullptr;
+	
+};
 
 UCLASS()
 class AURA_API UAuraAttributeSet : public UAttributeSet
@@ -22,6 +56,11 @@ class AURA_API UAuraAttributeSet : public UAttributeSet
 public:
 	UAuraAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// AttributeSet에 있는 함수, 값 클램핑에만 사용할 것을 권장(에픽)
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	// 게임플레이 이펙트 실행 후 호출되는 함수로 Data를 통해 연관된 대부분의 엔티티에 접근 가능함
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing=OnRep_Health,Category="Vital Attributes")
 	FGameplayAttributeData Health;
@@ -49,4 +88,8 @@ public:
 	void OnRep_Mana(const FGameplayAttributeData& OldMana) const;
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
+
+private:
+	// Data는 값만 받아오니까 const , Props는 채워넣어야하니 const X
+	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props);
 };
