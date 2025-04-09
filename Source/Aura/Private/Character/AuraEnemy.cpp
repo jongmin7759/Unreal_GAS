@@ -28,8 +28,15 @@ AAuraEnemy::AAuraEnemy()
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	InitAbilityActorInfo();
+}
+
+void AAuraEnemy::InitAbilityActorInfo()
+{
 	AbilitySystemComponent->InitAbilityActorInfo(this,this); // OwnerActor == AvatarActor
+	// AbilityActorInfo가 설정된 이후 호출되도록 순서제어 - 여기서 델리게이트 바인딩함
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet(); 
 }
 
 void AAuraEnemy::HighlightActor()

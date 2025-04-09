@@ -109,7 +109,6 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 				HandlesToRemove.Add(HandlePair.Key);
 			}
 		}
-		// ????????여기서는 참조하고 위에는 참조 안 하는 이유??????
 		for (FActiveGameplayEffectHandle& Handle : HandlesToRemove)
 		{
 			ActiveEffectHandles.FindAndRemoveChecked(Handle);
