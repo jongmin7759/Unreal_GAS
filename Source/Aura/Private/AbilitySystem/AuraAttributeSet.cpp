@@ -31,6 +31,7 @@ void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, 
 {
 	Super::PreAttributeChange(Attribute, NewValue);
 
+	// CurrentValue에만 영향을 준다. BaseValue까지 바꾸려면 PostGameplayEffectExecute()에서 확실히 Set으로 클램핑하기
 	if (Attribute == GetHealthAttribute())
 	{
 		NewValue =  FMath::Clamp(NewValue, 0.f , GetMaxHealth());
@@ -81,6 +82,19 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectMo
 
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
+
+	// PreAttributeChange()에서는 모디파이어 적용 전에 호출되는 값만 변경되므로 BaseValue 클램핑이 제대로 되어있지 않기때문에
+	// 게임플레이 이펙트 적용 이후 다시 값을 클램핑해줄 필요가 있다.
+	// 나중에 BaseValue 연산할 때 겉으로 보기에만 최댓값 유지 중이고 실제 Value가 그 이상이라면 실제 Value부터 값을 깎기때문에
+	// 이펙트 적용이 제대로 되지 않고 있는 것처럼 보일 수 있다.
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		SetHealth(FMath::Clamp(GetHealth(),0.f,GetMaxHealth()));
+	}
+	if (Data.EvaluatedData.Attribute == GetManaAttribute())
+	{
+		SetMana(FMath::Clamp(GetMana(),0.f,GetMaxMana()));
+	}
 	
 }
 

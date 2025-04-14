@@ -20,17 +20,32 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
-	// ASC의 델리게이트 받아오기, Dynamic 델리게이트가 아니므로 AddUObject로 바인딩
-	// 바인딩할 어트리뷰트 구조체를 인자로 넣기
+	// ASC의 델리게이트 받아오기, 바인딩할 어트리뷰트 구조체를 인자로 넣기
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetHealthAttribute()) // 델리게이트 불러오고
-	.AddUObject(this,&UOverlayWidgetController::HealthChanged); // 바인딩 (오브젝트, 콜백함수)
+	.AddLambda([this](const FOnAttributeChangeData& Data)
+		{
+			OnHealthChanged.Broadcast(Data.NewValue);
+		}
+	);
 	
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->
-		GetMaxHealthAttribute()).AddUObject(this,&UOverlayWidgetController::MaxHealthChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->
-		GetManaAttribute()).AddUObject(this,&UOverlayWidgetController::ManaChanged);
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->
-		GetMaxManaAttribute()).AddUObject(this,&UOverlayWidgetController::MaxManaChanged);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetMaxHealthAttribute()).AddLambda(
+	[this](const FOnAttributeChangeData& Data)
+		{
+			OnMaxHealthChanged.Broadcast(Data.NewValue);
+		}
+	);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetManaAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnManaChanged.Broadcast(Data.NewValue);
+		}
+	);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetMaxManaAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnMaxManaChanged.Broadcast(Data.NewValue);
+		}
+	);
 
 	// Effect Delegate 바인딩
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(  // 람다 함수 [capture](param){body}
@@ -38,32 +53,19 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		{
 			for (FGameplayTag Tag : AssetTags)
 			{
-				const FString Msg = FString::Printf(TEXT("AssetTag : %s"),*Tag.ToString());
-				GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,Msg);
-				// [] 안에 this 멤버 넣어주지 않으면 람다 함수 내에서는 정보가 없어서 멤버 함수 호출을 못함.
-				// []를 통해 외부 변수를 캡쳐해서 사용한다.
-				FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable,Tag);
+				// 태그가 메시지인 경우에만 메시지 델리게이트를 사용하도록 필터링
+				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag("Message");
+				if (Tag.MatchesTag(MessageTag))
+				{
+					// [] 안에 this 멤버 넣어주지 않으면 람다 함수 내에서는 정보가 없어서 멤버 함수 호출을 못함.
+                    // []를 통해 외부 변수를 캡쳐해서 사용한다.
+                    const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable,Tag);
+                    MessageWidgetRowDelegate.Broadcast(*Row);
+				}
+				
+				
 			}
 		}
 	);
 }
 
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::ManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnManaChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::MaxManaChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxManaChanged.Broadcast(Data.NewValue);
-}

@@ -8,14 +8,7 @@
 #include "OverlayWidgetController.generated.h"
 
 class UAuraUserWidget;
-
 struct FOnAttributeChangeData;
-// Dynamic : BP(특히 WBP)에 사용할 것이므로
-// Multicast : 여러 Widget에 연결할 예정이므로
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature,float,NewHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature,float,NewMaxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature,float,NewMana);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxManaChangedSignature,float,NewMaxMana);
 
 // DataTable에 사용할 구조체 (TableRowBase 상속)
 USTRUCT(BlueprintType)
@@ -36,6 +29,16 @@ struct FUIWidgetRow : public FTableRowBase
 	UTexture2D* Image = nullptr;
 };
 
+
+// Dynamic : BP(특히 WBP)에 사용할 것이므로
+// Multicast : 여러 Widget에 연결할 예정이므로
+// 굳이 속성별로 델리게이트를 나눌 필요 없기때문에 하나의 시그니처만 사용해도 됨
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature,float,NewValue);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature,FUIWidgetRow,Row);
+
+
+
 // BlueprintType : BP에서 노출되도록 (캐스팅 가능하도록)
 // Blueprintable : BP 자식클래스로 만들 수 있도록
 UCLASS(BlueprintType, Blueprintable)
@@ -48,28 +51,25 @@ public:
 
 	// BluprintAssignable : Multicast에 사용, 블루프린트에서 델리게이트가 노출되도록
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnHealthChangedSignature OnHealthChanged;
+	FOnAttributeChangedSignature OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnMaxHealthChangedSignature OnMaxHealthChanged;
+	FOnAttributeChangedSignature OnMaxHealthChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnManaChangedSignature OnManaChanged;
+	FOnAttributeChangedSignature OnManaChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnMaxManaChangedSignature OnMaxManaChanged;
+	FOnAttributeChangedSignature OnMaxManaChanged;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
+	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 protected:
 
 	// 컨트롤러를 통해 DT에 있는 정보 접근할 수 있도록 변수 추가
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 	
-	// 콜백 함수들 만들기
-	// ASC에서 제공하는 델리게이트 사용하므로 양식 맞추기 (const FOnAttributeChangeData&) 
-	void HealthChanged(const FOnAttributeChangeData& Data) const;
-	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
-	void ManaChanged(const FOnAttributeChangeData& Data) const;
-	void MaxManaChanged(const FOnAttributeChangeData& Data) const;
 
 	// 태그로 임의의 테이블 로우 반환하도록 템플릿 함수 만들기 (TODO : 라이브러리 헤더로 옮겨서 Generic하게 사용할 수 있도록하기) 
 	template<typename T>
