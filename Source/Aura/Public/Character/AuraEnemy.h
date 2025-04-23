@@ -22,8 +22,17 @@ public:
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
 	// end EnemyInterface
+
+	// CombatInterface
+	virtual int32 GetCombatLevel() override;
+	// end CombatInterface
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
+
+	// 적 캐릭터의 레벨은 리플리케이션 할 필요 없이 서버에서만 계산할 예정임 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Character Class Defaults")
+	int32 Level = 1;
+
 };

@@ -39,6 +39,13 @@ void AAuraCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo();
 }
 
+int32 AAuraCharacter::GetCombatLevel()
+{
+	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>(); 
+	check(AuraPlayerState);
+	return AuraPlayerState->GetCombatLevel();
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>(); // 템플릿 버전이 있음
@@ -60,4 +67,8 @@ void AAuraCharacter::InitAbilityActorInfo()
 			AuraHUD->InitOverlay(PlayerController,AuraPlayerState,AbilitySystemComponent,AttributeSet);
 		}
 	}
+
+	// ASC가 세팅된 이후에 어트리뷰트 초기화 불러오기
+	// Attribute가 모두 리플리케이션되기때문에 서버에서만 불러와도 상관없음
+	InitializeDefaultAttributes();
 }
